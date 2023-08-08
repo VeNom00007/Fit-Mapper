@@ -24,6 +24,7 @@ class Running extends Workout {
         super(coords, distance, duration);
         this.cadence = cadence;
         this.calcPace();
+        this._setDescription();
     }
     calcPace() {  //min/km
         this.pace = this.duration/this.distance;
@@ -37,6 +38,7 @@ class Cycling extends Workout {
         super(coords, distance, duration);
         this.elevationGain = elevationGain;
         this.calcSpeed();
+        this._setDescription();
     }
     calcSpeed() {  //km/hr
         this.speed = this.distance/(this.duration/60);
@@ -63,6 +65,7 @@ class App {
         this._getPosition();
         form.addEventListener('submit', this._newWorkout.bind(this));
         inputType.addEventListener('change', this._toggleElevationField);
+        containerWorkouts.addEventListener('click', this._moveToPopup.bind(this));
     }
 
     _getPosition() {
@@ -158,7 +161,7 @@ class App {
             closeOnClick: false,
             className: `${workout.type}-popup`,
         }))
-        .setPopupContent('workout')
+        .setPopupContent(`${workout.type === 'running' ? '🏃‍♂️' : '🚴‍♀️'} ${workout.description}`)
         .openPopup();
     }
 
@@ -206,6 +209,19 @@ class App {
             </li>`;
         }
         form.insertAdjacentHTML('afterend', html);
+    }
+
+    _moveToPopup(e) {
+        const workoutEl = e.target.closest('.workout');
+        if(!workoutEl) return;
+        const workout = this.#workouts.find(work => work.id === workoutEl.dataset.id);
+        console.log(workout);
+        this.#map.setView(workout.coords, 13, {
+            animate: true,
+            pan: {
+                duration: 1,
+            }
+        })
     }
 }
 
